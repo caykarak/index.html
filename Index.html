@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çay Karak Cafe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FFCC00;
+            --primary-dark: #E6B800;
+            --black: #1A1A1A;
+            --brown: #754221;
+            --white: #FFFFFF;
+            --gray: #F5F5F5;
+            --danger: #f44336;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background: var(--gray); color: var(--black); overflow-x: hidden; }
+        .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 1rem; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: var(--shadow); }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 800; color: var(--black); }
+        .logo i { font-size: 2rem; color: var(--brown); }
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        .cart-btn { position: relative; background: var(--black); color: var(--primary); border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+        .cart-count { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
+        .lang-switcher { display: flex; gap: 5px; background: rgba(255,255,255,0.3); padding: 5px; border-radius: 25px; }
+        .lang-btn { padding: 8px 16px; border: none; background: transparent; cursor: pointer; border-radius: 20px; font-weight: 600; font-family: inherit; }
+        .lang-btn.active { background: var(--black); color: var(--primary); }
+        .admin-btn { background: var(--black); color: var(--primary); border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .main-content { margin-top: 100px; padding: 2rem 1rem; max-width: 1400px; margin-left: auto; margin-right: auto; }
+        .categories { display: flex; gap: 10px; overflow-x: auto; padding: 1rem 0; margin-bottom: 2rem; scrollbar-width: none; }
+        .categories::-webkit-scrollbar { display: none; }
+        .category-btn { flex-shrink: 0; padding: 12px 24px; background: var(--white); border: 2px solid transparent; border-radius: 30px; cursor: pointer; font-weight: 600; white-space: nowrap; font-family: inherit; font-size: 1rem; }
+        .category-btn.active { background: var(--primary); border-color: var(--black); }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+        .product-card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); position: relative; }
+        .product-image { width: 100%; height: 200px; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--brown); position: relative; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        .add-to-cart-btn { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: var(--primary); color: var(--black); border: none; padding: 10px 30px; border-radius: 25px; font-weight: 700; cursor: pointer; }
+        .product-info { padding: 1.5rem; }
+        .product-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
+        .product-name { font-size: 1.3rem; font-weight: 700; color: var(--black); }
+        .product-name-tr, .product-name-en { font-size: 0.9rem; color: #666; }
+        .product-price { font-size: 1.5rem; font-weight: 800; color: var(--brown); background: var(--primary); padding: 5px 15px; border-radius: 20px; }
+        .cart-sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100vh; background: var(--white); box-shadow: -5px 0 30px rgba(0,0,0,0.2); z-index: 1500; transition: right 0.3s; display: flex; flex-direction: column; }
+        .cart-sidebar.active { right: 0; }
+        .cart-header { background: var(--primary); padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .cart-title { font-size: 1.3rem; font-weight: 700; }
+        .close-cart { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 1rem; }
+        .cart-item { display: flex; gap: 15px; padding: 1rem; background: var(--gray); border-radius: 15px; margin-bottom: 1rem; align-items: center; }
+        .cart-item-image { width: 80px; height: 80px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--brown); }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 700; margin-bottom: 5px; }
+        .quantity-control { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+        .qty-btn { width: 30px; height: 30px; border: none; background: var(--white); border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .remove-item { color: var(--danger); background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        .cart-footer { padding: 1.5rem; border-top: 2px solid var(--gray); background: var(--white); }
+        .cart-total { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; }
+        .checkout-btn { width: 100%; padding: 15px; background: var(--black); color: var(--primary); border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        .empty-cart { text-align: center; padding: 3rem; color: #999; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; padding: 1rem; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--white); border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 2rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-title { font-size: 1.5rem; font-weight: 700; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; font-size: 1rem; }
+        .submit-btn { width: 100%; padding: 15px; background: var(--black); color: var(--primary); border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+        .admin-dashboard { display: none; grid-template-columns: 250px 1fr; min-height: 100vh; }
+        .admin-dashboard.active { display: grid; }
+        .sidebar { background: var(--black); color: var(--white); padding: 2rem 1rem; }
+        .sidebar-logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary); }
+        .nav-item { padding: 1rem; margin-bottom: 0.5rem; border-radius: 10px; cursor: pointer; }
+        .nav-item.active { background: var(--primary); color: var(--black); }
+        .admin-content { padding: 2rem; background: var(--gray); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--white); padding: 1.5rem; border-radius: 15px; box-shadow: var(--shadow); }
+        .stat-value { font-size: 2rem; font-weight: 800; color: var(--black); }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--black); color: var(--primary); padding: 15px 30px; border-radius: 30px; font-weight: 600; z-index: 3000; opacity: 0; transition: all 0.3s; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    </style>
+</head>
+<body>
+    <header class="header" id="mainHeader">
+        <div class="header-content">
+            <div class="logo"><i class="fas fa-mug-hot"></i><span id="logoText">Çay Karak</span></div>
+            <div class="header-actions">
+                <button class="cart-btn" id="cartBtn"><i class="fas fa-shopping-bag"></i><span class="cart-count" id="cartCount">0</span></button>
+                <div class="lang-switcher">
+                    <button class="lang-btn active" id="btnAr">العربية</button>
+                    <button class="lang-btn" id="btnTr">Türkçe</button>
+                    <button class="lang-btn" id="btnEn">English</button>
+                </div>
+                <button class="admin-btn" id="adminLoginBtn"><i class="fas fa-lock"></i><span id="adminText">الإدارة</span></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" id="mainContent">
+        <div class="categories">
+            <button class="category-btn active" data-cat="all">الكل</button>
+            <button class="category-btn" data-cat="parota">باروتا</button>
+            <button class="category-btn" data-cat="drinks">المشروبات</button>
+            <button class="category-btn" data-cat="desserts">الحلويات</button>
+            <button class="category-btn" data-cat="thermos">ترمس</button>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </main>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <div class="cart-title"><i class="fas fa-shopping-bag"></i><span id="cartTitle">سلة الطلبات</span></div>
+            <button class="close-cart" id="closeCart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart"><i class="fas fa-shopping-basket" style="font-size: 4rem; color: #ddd;"></i><div id="emptyText">السلة فارغة</div></div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display: none;">
+            <div style="margin-bottom: 1rem;">
+                <label class="form-label" id="tableLabel">رقم الطاولة</label>
+                <input type="number" class="form-input" id="tableNumber" placeholder="مثال: 5">
+            </div>
+            <div class="cart-total"><span id="totalText">الإجمالي</span><span id="cartTotal">0 TL</span></div>
+            <button class="checkout-btn" id="checkoutBtn">إرسال الطلب <i class="fab fa-whatsapp"></i></button>
+        </div>
+    </div>
+
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 class="modal-title" id="loginTitle">تسجيل الدخول</h2><button class="close-btn" id="closeLogin">&times;</button></div>
+            <div class="form-group"><label class="form-label" id="passLabel">كلمة المرور</label><input type="password" class="form-input" id="adminPassword" placeholder="••••••"></div>
+            <button class="submit-btn" id="loginSubmit">دخول</button>
+        </div>
+    </div>
+
+    <div class="admin-dashboard" id="adminDashboard">
+        <div class="sidebar">
+            <div class="sidebar-logo"><i class="fas fa-mug-hot"></i>Çay Karak</div>
+            <div class="nav-item active" data-section="stats"><i class="fas fa-chart-line"></i> الإحصائيات</div>
+            <div class="nav-item" data-section="products"><i class="fas fa-utensils"></i> المنتجات</div>
+            <div class="nav-item" data-section="orders"><i class="fas fa-clipboard-list"></i> الطلبات</div>
+            <div class="nav-item" id="logoutBtn" style="margin-top: 50px; color: var(--danger);"><i class="fas fa-sign-out-alt"></i> خروج</div>
+        </div>
+        <div class="admin-content" id="adminContent">
+            <div id="statsSection">
+                <h2 style="margin-bottom: 1.5rem;">لوحة التحكم</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><div style="color: #666; margin-bottom: 0.5rem;">إجمالي المبيعات اليوم</div><div class="stat-value" id="todaySales">0 TL</div></div>
+                    <div class="stat-card"><div style="color: #666; margin-bottom: 0.5rem;">عدد الطلبات</div><div class="stat-value" id="ordersCount">0</div></div>
+                    <div class="stat-card"><div style="color: #666; margin-bottom: 0.5rem;">عدد المنتجات</div><div class="stat-value" id="productsCount">0</div></div>
+                </div>
+            </div>
+            <div id="productsSection" style="display: none;"><h2 style="margin-bottom: 1.5rem;">إدارة المنتجات</h2><div class="products-grid" id="adminProductsGrid"></div></div>
+            <div id="ordersSection" style="display: none;"><h2 style="margin-bottom: 1.5rem;">سجل الطلبات</h2><div id="ordersList"></div></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let products = [
+            { id: 1, category: 'parota', nameAr: 'شباتي سادة', nameTr: 'Sade Parota', nameEn: 'Plain Parota', price: 50, hidden: false },
+            { id: 2, category: 'parota', nameAr: 'شباتي بالجبن', nameTr: 'Peynirli Parota', nameEn: 'Cheese Parota', price: 70, hidden: false },
+            { id: 3, category: 'parota', nameAr: 'شباتي بالعسل', nameTr: 'Ballı Parota', nameEn: 'Honey Parota', price: 70, hidden: false },
+            { id: 4, category: 'drinks', nameAr: 'كرك', nameTr: 'Karak', nameEn: 'Karak Tea', price: 50, hidden: false },
+            { id: 5, category: 'drinks', nameAr: 'شاي', nameTr: 'Çay', nameEn: 'Tea', price: 20, hidden: false },
+            { id: 6, category: 'desserts', nameAr: 'كيلو صفوف', nameTr: 'Kilo Suff', nameEn: 'Kilo Suff', price: 250, hidden: false }
+        ];
+        let cart = [];
+        let orders = [];
+        let currentLang = 'ar';
+        let currentCategory = 'all';
+        const texts = {
+            ar: { cart: 'سلة الطلبات', empty: 'السلة فارغة', table: 'رقم الطاولة', total: 'الإجمالي', checkout: 'إرسال الطلب', admin: 'الإدارة', login: 'تسجيل الدخول', password: 'كلمة المرور', enter: 'دخول', categories: { all: 'الكل', parota: 'باروتا', drinks: 'المشروبات', desserts: 'الحلويات', thermos: 'ترمس' } },
+            tr: { cart: 'Sipariş Sepeti', empty: 'Sepet boş', table: 'Masa No', total: 'Toplam', checkout: 'Sipariş Gönder', admin: 'Yönetim', login: 'Giriş Yap', password: 'Şifre', enter: 'Giriş', categories: { all: 'Tümü', parota: 'Parota', drinks: 'İçecekler', desserts: 'Tatlılar', thermos: 'Termos' } },
+            en: { cart: 'Order Cart', empty: 'Cart is empty', table: 'Table Number', total: 'Total', checkout: 'Send Order', admin: 'Admin', login: 'Login', password: 'Password', enter: 'Login', categories: { all: 'All', parota: 'Parota', drinks: 'Drinks', desserts: 'Desserts', thermos: 'Thermos' } }
+        };
+        const elements = {
+            cartBtn: document.getElementById('cartBtn'), cartSidebar: document.getElementById('cartSidebar'), closeCart: document.getElementById('closeCart'),
+            cartItems: document.getElementById('cartItems'), cartFooter: document.getElementById('cartFooter'), cartCount: document.getElementById('cartCount'),
+            cartTotal: document.getElementById('cartTotal'), checkoutBtn: document.getElementById('checkoutBtn'), productsGrid: document.getElementById('productsGrid'),
+            adminLoginBtn: document.getElementById('adminLoginBtn'), loginModal: document.getElementById('loginModal'), closeLogin: document.getElementById('closeLogin'),
+            loginSubmit: document.getElementById('loginSubmit'), adminDashboard: document.getElementById('adminDashboard'), mainHeader: document.getElementById('mainHeader'),
+            mainContent: document.getElementById('mainContent'), logoutBtn: document.getElementById('logoutBtn'), toast: document.getElementById('toast')
+        };
+        function init() { renderProducts(); updateCart(); bindEvents(); }
+        function bindEvents() {
+            elements.cartBtn.addEventListener('click', toggleCart); elements.closeCart.addEventListener('click', toggleCart);
+            elements.checkoutBtn.addEventListener('click', checkout); elements.adminLoginBtn.addEventListener('click', () => showModal('loginModal'));
+            elements.closeLogin.addEventListener('click', () => hideModal('loginModal')); elements.loginSubmit.addEventListener('click', login);
+            elements.logoutBtn.addEventListener('click', logout);
+            document.getElementById('btnAr').addEventListener('click', () => changeLang('ar'));
+            document.getElementById('btnTr').addEventListener('click', () => changeLang('tr'));
+            document.getElementById('btnEn').addEventListener('click', () => changeLang('en'));
+            document.querySelectorAll('.category-btn').forEach(btn => { btn.addEventListener('click', function() { document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); currentCategory = this.dataset.cat; renderProducts(); }); });
+            document.querySelectorAll('.nav-item[data-section]').forEach(item => { item.addEventListener('click', function() { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); this.classList.add('active'); showAdminSection(this.dataset.section); }); });
+        }
+        function changeLang(lang) {
+            currentLang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; document.documentElement.lang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn' + lang.charAt(0).toUpperCase() + lang.slice(1)).classList.add('active');
+            const t = texts[lang];
+            document.getElementById('cartTitle').textContent = t.cart; document.getElementById('emptyText').textContent = t.empty;
+            document.getElementById('tableLabel').textContent = t.table; document.getElementById('totalText').textContent = t.total;
+            document.getElementById('checkoutBtn').innerHTML = t.checkout + ' <i class="fab fa-whatsapp"></i>';
+            document.getElementById('adminText').textContent = t.admin; document.getElementById('loginTitle').textContent = t.login;
+            document.getElementById('passLabel').textContent = t.password; document.getElementById('loginSubmit').textContent = t.enter;
+            document.querySelectorAll('.category-btn').forEach(btn => { const cat = btn.dataset.cat; btn.textContent = t.categories[cat]; });
+            renderProducts(); updateCart();
+        }
+        function renderProducts() {
+            const filtered = currentCategory === 'all' ? products.filter(p => !p.hidden) : products.filter(p => p.category === currentCategory && !p.hidden);
+            elements.productsGrid.innerHTML = filtered.map(product => {
+                const name = product['name' + currentLang.charAt(0).toUpperCase() + currentLang.slice(1)];
+                return '<div class="product-card"><div class="product-image"><i class="fas fa-utensils"></i><button class="add-to-cart-btn" onclick="addToCart(' + product.id + ')"><i class="fas fa-plus"></i> أضف</button></div><div class="product-info"><div class="product-header"><div><div class="product-name">' + name + '</div><div class="product-name-tr">' + product.nameTr + '</div></div><div class="product-price">' + product.price + ' TL</div></div></div></div>';
+            }).join('');
+        }
+        function toggleCart() { elements.cartSidebar.classList.toggle('active'); }
+        function addToCart(id) {
+            const product = products.find(p => p.id === id); const existing = cart.find(item => item.id === id);
+            if (existing) { existing.quantity++; } else { cart.push({ ...product, quantity: 1 }); }
+            updateCart(); showToast('تمت الإضافة للسلة');
+        }
+        function removeFromCart(id) { cart = cart.filter(item => item.id !== id); updateCart(); }
+        function updateQuantity(id, change) {
+            const item = cart.find(item => item.id === id);
+            if (item) { item.quantity += change; if (item.quantity <= 0) removeFromCart(id); else updateCart(); }
+        }
+        function updateCart() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0); elements.cartCount.textContent = count;
+            if (cart.length === 0) {
+                elements.cartItems.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-basket" style="font-size: 4rem; color: #ddd;"></i><div>' + texts[currentLang].empty + '</div></div>';
+                elements.cartFooter.style.display = 'none'; return;
+            }
+            elements.cartFooter.style.display = 'block';
+            elements.cartItems.innerHTML = cart.map(item => {
+                const name = item['name' + currentLang.charAt(0).toUpperCase() + currentLang.slice(1)];
+                return '<div class="cart-item"><div class="cart-item-image"><i class="fas fa-utensils"></i></div><div class="cart-item-info"><div class="cart-item-name">' + name + '</div><div>' + item.price + ' TL</div><div class="quantity-control"><button class="qty-btn" onclick="updateQuantity(' + item.id + ', -1)">-</button><span>' + item.quantity + '</span><button class="qty-btn" onclick="updateQuantity(' + item.id + ', 1)">+</button></div></div><button class="remove-item" onclick="removeFromCart(' + item.id + ')"><i class="fas fa-trash"></i></button></div>';
+            }).join('');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0); elements.cartTotal.textContent = total + ' TL';
+        }
+        function checkout() {
+            const table = document.getElementById('tableNumber').value;
+            if (!table) { alert('الرجاء إدخال رقم الطاولة'); return; }
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            let message = 'طلب جديد - الطاولة ' + table + '\n\n';
+            cart.forEach(item => { message += item.nameAr + ' x' + item.quantity + ' = ' + (item.price * item.quantity) + ' TL\n'; });
+            message += '\nالإجمالي: ' + total + ' TL';
+            window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+            orders.push({ table, items: [...cart], total, date: new Date() }); cart = []; updateCart(); toggleCart(); showToast('تم إرسال الطلب');
+        }
+        function showModal(id) { document.getElementById(id).classList.add('active'); }
+        function hideModal(id) { document.getElementById(id).classList.remove('active'); }
+        function login() {
+            const pass = document.getElementById('adminPassword').value;
+            if (pass === 'admin123') {
+                hideModal('loginModal'); elements.mainHeader.style.display = 'none'; elements.mainContent.style.display = 'none';
+                elements.adminDashboard.classList.add('active'); updateStats(); showToast('تم تسجيل الدخول');
+            } else { alert('كلمة المرور خاطئة'); }
+        }
+        function logout() { elements.adminDashboard.classList.remove('active'); elements.mainHeader.style.display = 'block'; elements.mainContent.style.display = 'block'; showToast('تم تسجيل الخروج'); }
+        function showAdminSection(section) {
+            document.getElementById('statsSection').style.display = 'none'; document.getElementById('productsSection').style.display = 'none'; document.getElementById('ordersSection').style.display = 'none';
+            document.getElementById(section + 'Section').style.display = 'block';
+            if (section === 'products') renderAdminProducts(); if (section === 'orders') renderOrders();
+        }
+        function updateStats() {
+            document.getElementById('productsCount').textContent = products.length; document.getElementById('ordersCount').textContent = orders.length;
+            const todaySales = orders.filter(o => { const d = new Date(o.date); const today = new Date(); return d.toDateString() === today.toDateString(); }).reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('todaySales').textContent = todaySales + ' TL';
+        }
+        function renderAdminProducts() {
+            document.getElementById('adminProductsGrid').innerHTML = products.map(p => '<div class="product-card" style="' + (p.hidden ? 'opacity: 0.5;' : '') + '"><div class="product-image"><i class="fas fa-utensils"></i></div><div class="product-info"><div class="product-name">' + p.nameAr + '</div><div>' + p.price + ' TL</div><div style="margin-top: 10px;"><button onclick="toggleProduct(' + p.id + ')" style="padding: 5px 10px; margin: 2px;">' + (p.hidden ? 'إظهار' : 'إخفاء') + '</button></div></div></div>').join('');
+        }
+        function toggleProduct(id) { const p = products.find(x => x.id === id); p.hidden = !p.hidden; renderAdminProducts(); renderProducts(); }
+        function renderOrders() {
+            if (orders.length === 0) { document.getElementById('ordersList').innerHTML = '<p style="text-align:center;">لا توجد طلبات</p>'; return; }
+            document.getElementById('ordersList').innerHTML = orders.slice().reverse().map(o => '<div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px;"><strong>طاولة ' + o.table + '</strong> - ' + o.total + ' TL<div style="color: #666; font-size: 0.9rem;">' + new Date(o.date).toLocaleString('ar') + '</div></div>').join('');
+        }
+        function showToast(msg) { elements.toast.textContent = msg; elements.toast.classList.add('show'); setTimeout(() => elements.toast.classList.remove('show'), 3000); }
+        init();
+    </script>
+</body>
+</html>
